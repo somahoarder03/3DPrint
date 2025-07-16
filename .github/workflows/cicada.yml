@@ -1,0 +1,41 @@
+name: ci_cd
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    #Test with Ruff
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10
+
+    - name: Install ruff
+      run: pip install ruff
+
+    - name: Lint code using ruff
+      run: |
+        echo "Running ruff..."
+        ruff . --ignore E501
+
+    # Deploy with SSH into RasPi
+    - name: Deploy to Raspberry Pi
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PI_HOST }}
+        username: ${{ secrets.PI_USER }}
+        password: ${{ secrets.PI_PASS }}
+        script: |
+          cd yolodet
+          git pull origin main
+          source venv/bin/activate
+          pip install -r requirements.txt
+          echo "✅ Deployment complete!"
