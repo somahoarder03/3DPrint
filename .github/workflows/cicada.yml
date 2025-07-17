@@ -27,7 +27,7 @@ jobs:
       - name: Lint code using Ruff
         run: |
           echo "Running ruff..."
-          ruff . --ignore E501
+          ruff check . --ignore E501
 
       - name: Install Python dependencies for app
         run: pip install -r requirements.txt
