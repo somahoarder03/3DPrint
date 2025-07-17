@@ -10,7 +10,7 @@ def sanity_check():
         print("Sanity check failed: Could not load model.")
         exit(1)
     image_path="./dummy_image.jpg"
-    res = model.predict(image_path)
+    model.predict(image_path)
     print("Sanity check successful.")
     exit(0)
 
