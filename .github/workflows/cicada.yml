@@ -41,7 +41,7 @@ jobs:
           context: .
           platforms: linux/arm/v7
           push: false
-          tags: ${{ secrets.DOCKER_USERNAME }}/3DPrint:test
+          tags: ${{ secrets.DOCKER_USERNAME }}/print3d:test
           load: true
 
   deploy:
@@ -70,7 +70,7 @@ jobs:
           context: .
           platforms: linux/arm/v7
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/3DPrint:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/print3d:latest
 
       - name: Deploy to Raspberry Pi via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -81,8 +81,8 @@ jobs:
           script: |
             echo "Starting Deployment on Raspberry Pi..."
            
-            echo "Pulling latest Docker image: ${{ secrets.DOCKER_USERNAME }}/3DPrint:latest"
-            docker pull ${{ secrets.DOCKER_USERNAME }}/3DPrint:latest
+            echo "Pulling latest Docker image: ${{ secrets.DOCKER_USERNAME }}/print3d:latest"
+            docker pull ${{ secrets.DOCKER_USERNAME }}/print3d:latest
     
             echo "Stopping and removing old container (if exists)..."
             docker stop yolo-app || true
@@ -95,6 +95,6 @@ jobs:
               --privileged \
               --network host \
               -v /home/${{ secrets.PI_USER }}/yolo_data:/app/data \
-              ${{ secrets.DOCKER_USERNAME }}/3DPrint:latest
+              ${{ secrets.DOCKER_USERNAME }}/print3d:latest
       
             echo "Deployment complete!"
