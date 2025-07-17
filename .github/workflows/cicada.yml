@@ -32,31 +32,27 @@ jobs:
       - name: Install Python dependencies for app
         run: pip install -r requirements.txt
 
-      - name: Run unit tests / Model sanity check
-        run: python src/detect.py --test-mode
+      - name: Sanity Check before Pushing
+        run: python detect.py --test
 
-      - name: Build Docker image (for Raspberry Pi ARM architecture)
-        # This step builds the image but doesn't push it yet.
-        # It's part of the 'test-and-build' job to ensure the image builds successfully.
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
-          context: . # Build context is the root of your repo
-          platforms: linux/arm/v7 # Target platform for Raspberry Pi 3/4
-          push: false # Do not push yet, just build and verify
-          tags: ${{ secrets.DOCKER_USERNAME }}/yolo-raspi-app:test # Tag it for local testing within runner
-          load: true # Load image to local Docker daemon for subsequent steps
+          context: .
+          platforms: linux/arm/v7
+          push: false
+          tags: ${{ secrets.DOCKER_USERNAME }}/3DPrint:test
+          load: true
 
-  deploy: # Separate deployment job
-    runs-on: ubuntu-latest # Can also use a self-hosted runner on a stronger machine if cross-compilation is slow
-    needs: test-and-build # This job will only run if the 'test-and-build' job passes
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test-and-build
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up QEMU (for cross-platform Docker builds - needed if 'test-and-build' didn't already build for ARM)
-        # Only needed if you plan to build the ARM image directly in this job,
-        # otherwise, ensure test-and-build passes the image.
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
@@ -69,53 +65,36 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Image (final image)
-        # This step rebuilds (or leverages cache) and pushes the final image.
-        # This assumes your Dockerfile is at the root or correctly referenced.
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/arm/v7 # Ensure correct architecture for Pi
+          platforms: linux/arm/v7
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/yolo-raspi-app:latest # Tag as latest for deployment
+          tags: ${{ secrets.DOCKER_USERNAME }}/3DPrint:latest
 
       - name: Deploy to Raspberry Pi via SSH
-        uses: appleboy/ssh-action@v1.0.3 # Using a slightly newer version for potential fixes/features
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.PI_HOST }}
           username: ${{ secrets.PI_USER }}
-          password: ${{ secrets.PI_PASS }} # Consider using SSH keys instead of password for security
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "--- Starting Deployment on Raspberry Pi ---"
-
-            # 1. Update existing project code on the Pi (if not using Docker for everything)
-            # If your 3DPrint directory itself contains more than just the Docker context,
-            # you might still need this for non-containerized components.
-            # Otherwise, the Docker image should contain everything.
-            # cd 3DPrint # Only if the 3DPrint folder on Pi is distinct from the app dir
-            # git pull origin main
-            # source venv/bin/activate # Only if you still have a Python venv on Pi for non-Docker parts
-            # pip install -r requirements.txt # Same as above
-
-            # 2. Pull the latest Docker image
-            echo "Pulling latest Docker image: ${{ secrets.DOCKER_USERNAME }}/yolo-raspi-app:latest"
-            docker pull ${{ secrets.DOCKER_USERNAME }}/yolo-raspi-app:latest
-
-            # 3. Stop and remove the old container
+            echo "Starting Deployment on Raspberry Pi..."
+           
+            echo "Pulling latest Docker image: ${{ secrets.DOCKER_USERNAME }}/3DPrint:latest"
+            docker pull ${{ secrets.DOCKER_USERNAME }}/3DPrint:latest
+    
             echo "Stopping and removing old container (if exists)..."
-            docker stop yolo-app || true # '|| true' prevents failure if container doesn't exist
+            docker stop yolo-app || true
             docker rm yolo-app || true
-
-            # 4. Run the new container
+    
             echo "Running new container 'yolo-app'..."
-            # IMPORTANT: Adjust this `docker run` command based on your application's needs
-            # For a YOLO app, you might need camera access (--device), specific ports (--p),
-            # or mounted volumes for input/output data (-v).
             docker run -d \
               --name yolo-app \
               --restart always \
               --privileged \
               --network host \
               -v /home/${{ secrets.PI_USER }}/yolo_data:/app/data \
-              ${{ secrets.DOCKER_USERNAME }}/yolo-raspi-app:latest
-
-            echo "✅ Deployment complete!"
+              ${{ secrets.DOCKER_USERNAME }}/3DPrint:latest
+      
+            echo "Deployment complete!"
