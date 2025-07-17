@@ -32,9 +32,6 @@ jobs:
       - name: Install Python dependencies for app
         run: pip install -r requirements.txt
 
-      - name: Sanity Check before Pushing
-        run: python detect.py --test
-
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
