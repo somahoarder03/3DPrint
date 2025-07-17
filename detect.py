@@ -9,13 +9,8 @@ def sanity_check():
     if model is None:
         print("Sanity check failed: Could not load model.")
         exit(1)
-    try:
-        image_path="./dummy_image.jpg"
-        res = model.predict(image_path)
-    except Exception as e:
-        print("Sanity check failed: " + str(e))
-        exit(1)
-
+    image_path="./dummy_image.jpg"
+    res = model.predict(image_path)
     print("Sanity check successful.")
     exit(0)
 
