@@ -1,19 +1,39 @@
 
-FROM balenalib/raspberrypi3-python:3.11-buster-build AS builder
+FROM balenalib/raspberrypi3-python:3.10-buster-build AS builder
 
 WORKDIR /app
+
+# Change the default apt sources to the archive repository
+RUN sed -i 's/http:\/\/deb.debian.org/http:\/\/archive.debian.org/' /etc/apt/sources.list \
+    && sed -i 's/http:\/\/security.debian.org/http:\/\/archive.debian.org/' /etc/apt/sources.list
+
+
+# Add necessary build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libjpeg-dev \
+    zlib1g-dev \
+    libpython3-dev \
+    libopenblas-dev \
+    git
 
 
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt \
+# Upgrade pip first
+RUN pip install --upgrade pip
+
+#RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY detect.py .
 COPY model/best.pt .
 COPY dummy_image.jpg .
 
-FROM balenalib/raspberrypi3-python:3.11-buster-run
+FROM balenalib/raspberrypi3-python:3.10-buster-run
 
 WORKDIR /app
 
