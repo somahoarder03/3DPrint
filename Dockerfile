@@ -23,8 +23,11 @@ RUN apt-get update && apt-get install -y \
 
 COPY requirements.txt .
 
-RUN python -m ensurepip --upgrade && \
-    python -m pip install --upgrade pip
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
+    && python get-pip.py \
+    && rm get-pip.py \
+    && rm -rf /var/lib/apt/lists/* # Clean up apt cache
 
 #RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
