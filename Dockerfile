@@ -23,10 +23,8 @@ RUN apt-get update && apt-get install -y \
 
 COPY requirements.txt .
 
-RUN python -m ensurepip --upgrade
-
-# Upgrade pip first
-RUN python -m pip install --upgrade pip
+RUN python -m ensurepip --upgrade && \
+    python -m pip install --upgrade pip
 
 #RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
