@@ -23,6 +23,8 @@ RUN apt-get update && apt-get install -y \
 
 COPY requirements.txt .
 
+RUN python -m ensurepip --upgrade
+
 # Upgrade pip first
 RUN python -m pip install --upgrade pip
 
