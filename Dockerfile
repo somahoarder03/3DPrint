@@ -9,15 +9,7 @@ RUN sed -i 's/http:\/\/deb.debian.org/http:\/\/archive.debian.org/' /etc/apt/sou
 
 
 # Add necessary build dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libjpeg-dev \
-    zlib1g-dev \
-    libpython3-dev \
-    libopenblas-dev \
-    git
+
 
 
 
