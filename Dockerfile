@@ -1,5 +1,5 @@
 
-FROM balenalib/raspberrypi3-python:3.11.2-bookworm-build AS builder
+FROM balenalib/raspberrypi3-python:3.11.2-bullseye-build AS builder
 
 WORKDIR /app
 
@@ -23,11 +23,10 @@ RUN apt-get update && apt-get install -y \
 
 COPY requirements.txt .
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
-    && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
-    && python get-pip.py \
-    && rm get-pip.py \
-    && rm -rf /var/lib/apt/lists/* # Clean up apt cache
+RUN python -m ensurepip --upgrade
+
+# Upgrade pip first
+RUN python -m pip install --upgrade pip
 
 #RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
@@ -36,7 +35,7 @@ COPY detect.py .
 COPY model/best.pt .
 COPY dummy_image.jpg .
 
-FROM balenalib/raspberrypi3-python:3.11.2-bookworm-run
+FROM balenalib/raspberrypi3-python:3.11.2-bullseye-run
 
 WORKDIR /app
 
