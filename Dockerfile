@@ -1,5 +1,5 @@
 
-FROM balenalib/raspberrypi3-python:3.11-buster-build AS builder
+FROM balenalib/raspberrypi3-python:3.11.2-bookworm-build AS builder
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ COPY detect.py .
 COPY model/best.pt .
 COPY dummy_image.jpg .
 
-FROM balenalib/raspberrypi3-python:3.11-buster-run
+FROM balenalib/raspberrypi3-python:3.11.2-bookworm-run
 
 WORKDIR /app
 
