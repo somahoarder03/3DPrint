@@ -21,9 +21,7 @@ COPY requirements.txt .
 # - git: Needed if your requirements.txt refers to packages from Git repositories.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    build-essential \ # Contains gcc, g++
-    gfortran \        # <--- ADD THIS LINE! This is the Fortran compiler
-    pkg-config \      # pkg-config was also not found, good to include
+    build-essential \
     libgl1-mesa-glx \
     libglib2.0-0 \
     libjpeg-dev \

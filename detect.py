@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 import cv2
 import argparse
+from picamera2 import Picamera2
 
 def sanity_check():
     print("Running sanity check...")
