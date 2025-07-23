@@ -13,6 +13,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ruff
+        run: |
+          echo "Installing ruff..."
+          pip install ruff
+          echo "Ruff Installed."
+
+      - name: Lint code using Ruff
+        run: |
+          echo "Running ruff..."
+          ruff check . --ignore E501
+
+      - name: Install Python dependencies for app
+        run: pip install -r requirements.txt
+
+      - name: Sanity Check before Pushing
+        run: python detect.py --test
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
