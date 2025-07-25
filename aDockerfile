@@ -1,4 +1,4 @@
-
+#This is my dockerfile while the other happened to be created by ai to fix the issues but to no avail
 FROM balenalib/raspberrypi3-python:3.11.2-bullseye-build AS builder
 
 WORKDIR /app
